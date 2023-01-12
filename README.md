@@ -15,7 +15,6 @@ glpi|glpi|admin account
 tech|tech|technical account
 normal|normal|"normal" account
 post-only|postonly|post-only account
-⚠️ ️️I strongly recommend that you change these passwords after the first login.
 
 ### Read the documentation
 Know that I have no connection with the team that develops GLPI and/or TecLib.
