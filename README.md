@@ -1,11 +1,11 @@
 # GLPI_install_script  
-
+  
 ## About this script  
-
+  
 This script was written in order to quickly install the latest version of GLPI (currently 10.0.05).  
-
-The script will install, Apache, MariaDB, retrieve from the [GLPI repo](https://github.com/glpi-project/glpi) the l>  
-All you have to do is connect to GLPI.
+  
+The script will install, Apache, MariaDB, PHP and dependencies, the latest version from the [Official GLPI repo](https://github.com/glpi-project/glpi) and configure the database for you.
+Once the script is executed, the only thing you have to do will be to connect to GLPI.
 
 ## Compatibility
 Since this script uses apt, it currently only works on debian-based distributions.
