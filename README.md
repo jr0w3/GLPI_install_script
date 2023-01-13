@@ -1,6 +1,8 @@
 
 # GLPI_install_script
 
+ <img alt="GLPI IMG" src="https://glpi-project.org/wp-content/uploads/2022/01/assets-2.png">
+
 ## About this script
 
 This script was written in order to quickly install the latest version of GLPI (currently 10.0.05) on Ubuntu & Debian servers.
