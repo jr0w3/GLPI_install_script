@@ -3,7 +3,7 @@
 # GLPI install script
 #
 # Author: jr0w3
-# Version: 1.1
+# Version: 1.1.1
 #
 
 function warn(){
@@ -18,83 +18,101 @@ function check_root()
 # Vérification des privilèges root
 if [[ "$(id -u)" -ne 0 ]]
 then
-	warn "This script must be run as root" >&2
+        warn "This script must be run as root" >&2
   exit 1
 else
-	info "Root privilege: OK"
+        info "Root privilege: OK"
 fi
 }
 
-function check_network()
-{
-INTERFACE=$(ip route | awk 'NR==1 {print $5}')
-IPADRESS=$(ip addr show $INTERFACE | grep inet | awk '{ print $2; }' | sed 's/\/.*$//' | head -n 1)
-HOST=$(hostname)
-}
 function check_distro()
 {
 # Constante pour les versions de Debian acceptables
 DEBIAN_VERSIONS=("11")
+
 # Constante pour les versions d'Ubuntu acceptables
 UBUNTU_VERSIONS=("22.04")
 
 # Récupération du nom de la distribution
 DISTRO=$(lsb_release -is)
+
 # Récupération de la version de la distribution
 VERSION=$(lsb_release -rs)
 
 # Vérifie si c'est une distribution Debian
 if [ "$DISTRO" == "Debian" ]; then
-	# Vérifie si la version de Debian est acceptable
-	if [[ " ${DEBIAN_VERSIONS[*]} " == *" $VERSION "* ]]; then
-		info "Your operating system version ($DISTRO $VERSION) is compatible."
-	else
-		warn "Your operating system version ($DISTRO $VERSION) is not noted as compatible."
-		warn "Do you still want to force the installation? Be careful, if you choose to force the script, it is at your own risk."
-		info "Do you want to continue? (yes/no)"
-		read response
-		if [ $response == "yes" ]; then
-		info "Continuing..."
-		elif [ $response == "no" ]; then
-		info "Exiting..."
-		exit 1
-		else
-		warn "Invalid response. Exiting..."
-		exit 1
-		fi
-	fi
+        # Vérifie si la version de Debian est acceptable
+        if [[ " ${DEBIAN_VERSIONS[*]} " == *" $VERSION "* ]]; then
+                info "Your operating system version ($DISTRO $VERSION) is compatible."
+        else
+                warn "Your operating system version ($DISTRO $VERSION) is not noted as compatible."
+                warn "Do you still want to force the installation? Be careful, if you choose to force the script, it is at your own risk."
+                info "Are you sure you want to continue? [yes/no]"
+                read response
+                if [ $response == "yes" ]; then
+                info "Continuing..."
+                elif [ $response == "no" ]; then
+                info "Exiting..."
+                exit 1
+                else
+                warn "Invalid response. Exiting..."
+                exit 1
+                fi
+        fi
 
 # Vérifie si c'est une distribution Ubuntu
 elif [ "$DISTRO" == "Ubuntu" ]; then
-	# Vérifie si la version d'Ubuntu est acceptable
-	if [[ " ${UBUNTU_VERSIONS[*]} " == *" $VERSION "* ]]; then
-		info "Your operating system version ($DISTRO $VERSION) is compatible."
-	else
-		warn "Your operating system version ($DISTRO $VERSION) is not noted as compatible."
-		warn "Do you still want to force the installation? Be careful, if you choose to force the script, it is at your own risk."
-		info "Do you want to continue? (yes/no)"
-		read response
-		if [ $response == "yes" ]; then
-		info "Continuing..."
-		elif [ $response == "no" ]; then
-		info "Exiting..."
-		exit 1
-		else
-		warn "Invalid response. Exiting..."
-		exit 1
-		fi
-	fi
+        # Vérifie si la version d'Ubuntu est acceptable
+        if [[ " ${UBUNTU_VERSIONS[*]} " == *" $VERSION "* ]]; then
+                info "Your operating system version ($DISTRO $VERSION) is compatible."
+        else
+                warn "Your operating system version ($DISTRO $VERSION) is not noted as compatible."
+                warn "Do you still want to force the installation? Be careful, if you choose to force the script, it is at your own risk."
+                info "Are you sure you want to continue? [yes/no]"
+                read response
+                if [ $response == "yes" ]; then
+                info "Continuing..."
+                elif [ $response == "no" ]; then
+                info "Exiting..."
+                exit 1
+                else
+                warn "Invalid response. Exiting..."
+                exit 1
+                fi
+        fi
 # Si c'est une autre distribution
 else
-	warn "Il s'agit d'une autre distribution que Debian ou Ubuntu qui n'est pas compatible."
-	exit 1
+        warn "Il s'agit d'une autre distribution que Debian ou Ubuntu qui n'est pas compatible."
+        exit 1
 fi
 }
 
-# Installer les packages nécessaire
+function network_info()
+{
+INTERFACE=$(ip route | awk 'NR==1 {print $5}')
+IPADRESS=$(ip addr show $INTERFACE | grep inet | awk '{ print $2; }' | sed 's/\/.*$//' | head -n 1)
+HOST=$(hostname)
+}
+
+function confirm_installation()
+{
+warn "This script will now install the necessary packages for installing and configuring GLPI."
+info "Are you sure you want to continue? [yes/no]"
+read confirm
+if [ $confirm == "yes" ]; then
+        info "Continuing..."
+elif [ $confirm == "no" ]; then
+        info "Exiting..."
+        exit 1
+else
+        warn "Invalid response. Exiting..."
+        exit 1
+fi
+}
+
 function install_packages()
 {
-info "Installing packages"
+info "Installing packages..."
 sleep 1
 apt update
 apt install --yes --no-install-recommends \
@@ -104,7 +122,7 @@ perl \
 curl \
 jq \
 php
-info "Installing php extentions"
+info "Installing php extensions..."
 apt install --yes --no-install-recommends \
 php-ldap \
 php-imap \
@@ -126,7 +144,7 @@ systemctl enable apache2
 
 function mariadb_configure()
 {
-info "Configuring mariaDB"
+info "Configuring MariaDB..."
 sleep 1
 SLQROOTPWD=$(openssl rand -base64 48 | cut -c1-12 )
 SQLGLPIPWD=$(openssl rand -base64 48 | cut -c1-12 )
@@ -158,12 +176,11 @@ GRANT ALL PRIVILEGES ON glpi.* TO 'glpi_user'@'localhost';
 # Reload privileges
 FLUSH PRIVILEGES;
 EOF
-
 }
 
 function install_glpi()
 {
-info "Downloading and installing GLPI"
+info "Downloading and installing the latest version of GLPI..."
 # Get download link for the latest release
 DOWNLOADLINK=$(curl -s https://api.github.com/repos/glpi-project/glpi/releases/latest | jq -r '.assets[0].browser_download_url')
 wget -O /tmp/glpi-latest.tgz $DOWNLOADLINK
@@ -199,7 +216,7 @@ a2enmod rewrite && service apache2 restart
 
 function setup_db()
 {
-info "Setting up GLPI"
+info "Setting up GLPI..."
 cd /var/www/html/glpi
 php bin/console db:install --db-name=glpi --db-user=glpi_user --db-password=$SQLGLPIPWD --no-interaction
 rm -rf /var/www/html/glpi/install
@@ -225,10 +242,15 @@ info "root password:           $SLQROOTPWD"
 info "glpi_user password:      $SQLGLPIPWD"
 info "GLPI database name:          glpi"
 info "<==========================================>"
+echo ""
+info "If you encounter any issue with this script, please report it on GitHub: https://github.com/jr0w3/GLPI_install_script/issues"
 }
+
+
 check_root
 check_distro
-check_network
+confirm_installation
+network_info
 install_packages
 mariadb_configure
 install_glpi
