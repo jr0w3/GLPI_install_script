@@ -7,8 +7,12 @@
 
 This script was written in order to quickly install the latest version of GLPI (currently 10.0.05) on Ubuntu & Debian servers.
 
-The script will install, Apache, MariaDB, PHP and dependencies, the latest version from the [Official GLPI repo](https://github.com/glpi-project/glpi) and configure the database for you.
+The script will install, Apache, MariaDB, PHP and dependencies, and download and install the latest version from the [Official GLPI repo](https://github.com/glpi-project/glpi) and configure the database for you.
 Once the script is executed, the only thing you have to do will be to connect to GLPI.
+
+The installation of GLPI is done without SSL. If you need to open access to GLPI from the outside and/or an SSL certificate, I recommend that you use a reverse proxy.
+
+⚠️ It is strongly recommended to run this script on a fresh install.
 
 ### Default accounts
 | Login | Password | Role |
