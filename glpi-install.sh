@@ -193,17 +193,18 @@ chmod -R 775 /var/www/html/glpi
 # Setup vhost
 cat > /etc/apache2/sites-available/000-default.conf << EOF
 <VirtualHost *:80>
-        DocumentRoot /var/www/html/glpi
-
-        <Directory /var/www/html/glpi>
-                AllowOverride All
-                Order Allow,Deny
-                Allow from all
+       DocumentRoot /var/www/html/glpi/public  
+       <Directory /var/www/html/glpi/public>
+                Require all granted
+                RewriteEngine On
+                RewriteCond %{REQUEST_FILENAME} !-f
+                RewriteRule ^(.*)$ index.php [QSA,L]
         </Directory>
-
-        ErrorLog /var/log/apache2/error-glpi.log
+        
         LogLevel warn
-        CustomLog /var/log/apache2/access-glpi.log combined
+        ErrorLog ${APACHE_LOG_DIR}/error-glpi.log
+        CustomLog ${APACHE_LOG_DIR}/access-glpi.log combined
+        
 </VirtualHost>
 EOF
 
@@ -215,7 +216,7 @@ echo "ServerTokens Prod" >> /etc/apache2/apache2.conf
 echo "*/2 * * * * www-data /usr/bin/php /var/www/html/glpi/front/cron.php &>/dev/null" >> /etc/cron.d/glpi
 
 #Activation du module rewrite d'apache
-a2enmod rewrite && service apache2 restart
+a2enmod rewrite && systemctl restart apache2
 }
 
 function setup_db()
