@@ -216,7 +216,7 @@ echo "ServerTokens Prod" >> /etc/apache2/apache2.conf
 echo "*/2 * * * * www-data /usr/bin/php /var/www/html/glpi/front/cron.php &>/dev/null" >> /etc/cron.d/glpi
 
 #Activation du module rewrite d'apache
-a2enmod rewrite && service apache2 restart
+a2enmod rewrite && systemctl restart apache2
 }
 
 function setup_db()
