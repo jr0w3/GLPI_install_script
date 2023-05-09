@@ -202,8 +202,8 @@ cat > /etc/apache2/sites-available/000-default.conf << EOF
         </Directory>
         
         LogLevel warn
-        ErrorLog ${APACHE_LOG_DIR}/error-glpi.log
-        CustomLog ${APACHE_LOG_DIR}/access-glpi.log combined
+        ErrorLog $${APACHE_LOG_DIR}/error-glpi.log
+        CustomLog $${APACHE_LOG_DIR}/access-glpi.log combined
         
 </VirtualHost>
 EOF
