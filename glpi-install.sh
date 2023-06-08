@@ -42,8 +42,6 @@ VERSION=$(lsb_release -rs)
 # Vérifie si c'est une distribution Debian
 if [ "$DISTRO" == "Debian" ]; then
         # Vérifie si la version de Debian est acceptable
-        if [[ " ${DEBIAN_VERSIONS[*]} " == *" $VERSION "* ]]; then
-                info "Your operating system version ($DISTRO $VERSION) is compatible."
         else
                 warn "Your operating system version ($DISTRO $VERSION) is not noted as compatible."
                 warn "Do you still want to force the installation? Be careful, if you choose to force the script, it is at your own risk."
