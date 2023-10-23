@@ -38,6 +38,7 @@ This script was tested on this distributions:
 |--|--|--|
 |Debian|10|⚠️ Never tried, if you choose to force the script, it is at your own risk. |
 |Debian|11|✅|
+|Debian|12|✅|
 |Ubuntu|22.04|✅|
 |Ubuntu|22.10|⚠️ Never tried, if you choose to force the script, it is at your own risk.|
 

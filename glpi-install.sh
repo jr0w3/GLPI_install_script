@@ -28,7 +28,7 @@ fi
 function check_distro()
 {
 # Constante pour les versions de Debian acceptables
-DEBIAN_VERSIONS=("11")
+DEBIAN_VERSIONS=("11" "12")
 
 # Constante pour les versions d'Ubuntu acceptables
 UBUNTU_VERSIONS=("22.04")
