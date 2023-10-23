@@ -153,29 +153,30 @@ sleep 1
 
 # Set the root password
 mysql -e "UPDATE mysql.user SET Password = PASSWORD('$SLQROOTPWD') WHERE User = 'root'"
-
 # Remove anonymous user accounts
 mysql -e "DELETE FROM mysql.user WHERE User = ''"
-
 # Disable remote root login
 mysql -e "DELETE FROM mysql.user WHERE User = 'root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
-
 # Remove the test database
 mysql -e "DROP DATABASE test"
-
+# Reload privileges
+mysql -e "FLUSH PRIVILEGES"
+# Create a new database
+mysql -e "CREATE DATABASE glpi"
+# Create a new user
+mysql -e "CREATE USER 'glpi_user'@'localhost' IDENTIFIED BY '$SQLGLPIPWD'"
+# Grant privileges to the new user for the new database
+mysql -e "GRANT ALL PRIVILEGES ON glpi.* TO 'glpi_user'@'localhost'"
 # Reload privileges
 mysql -e "FLUSH PRIVILEGES"
 
-mysql -u root -p'$SLQROOTPWD' <<EOF
-# Create a new database
-CREATE DATABASE glpi;
-# Create a new user
-CREATE USER 'glpi_user'@'localhost' IDENTIFIED BY '$SQLGLPIPWD';
-# Grant privileges to the new user for the new database
-GRANT ALL PRIVILEGES ON glpi.* TO 'glpi_user'@'localhost';
-# Reload privileges
-FLUSH PRIVILEGES;
-EOF
+# Initialize time zones datas
+mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p'$SLQROOTPWD' mysql
+#Ask tz
+dpkg-reconfigure tzdata
+systemctl restart mariadb
+sleep 1
+mysql -e "GRANT SELECT ON mysql.time_zone_name TO 'glpi_user'@'localhost'"
 }
 
 function install_glpi()
